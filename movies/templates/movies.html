@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% for movie in object_list %}
+<div class="classWithPad">
+  <div class="row">
+   <div class="col-md-2"> {{ movie.title }} </div>
+   <div> {{ movie.description }} </div>
+   <div><img src="{{ movie.poster.url }}"></div>
+  </div>
+ </div>
+
+{% empty %}
+ <p>Список пуст</p>
+{% endfor %}
+
+{% endblock %}
