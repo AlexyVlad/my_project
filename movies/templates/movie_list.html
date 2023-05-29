@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+{% for movie in object_list %}
+ {% if not movie.draft %}
+  <div class="item">
+   <div class="col-lg-8">
+    <div > <a href="movies/{{movie.id}}"> {{ movie.title }} </a> </div>
+    <div><img src="{{ movie.poster.url }}"></div>
+    <div > {{ movie.description }} </div>
+   </div>
+  </div>
+ {% endif %}
+{% empty %} <p>Список пуст</p>
+
+{% endfor %}
+</div>
+{% endblock %}
