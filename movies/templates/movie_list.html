@@ -2,6 +2,11 @@
 
 {% block content %}
 
+<form method="GET">
+        {{ filter.form.name.label }}<br>{{ filter.form.name }}
+        <br><br><button type="submit">Поиск</button>
+    </form>
+
 <div class="container">
 {% for movie in object_list %}
  {% if not movie.draft %}
