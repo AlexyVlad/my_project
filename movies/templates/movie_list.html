@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %} Список фильмов {% endblock %}
+
+{% block content %}
+
+<div class="left_panel">
+    <div class="search-bar w3layouts-newsletter">
+        <h3 class="sear-head editContent">Поиск фильма</h3>
+        <form action="{% url 'search' %}" method="get" class="d-flex editContent">
+            <input type="search" placeholder="Введите название..." name="search" class="form-control" required="">
+            <button type="submit" class="btn1 btn ">
+                <span class="fa fa-search" aria-hidden="true"></span>
+            </button>
+        </form>
+    </div>
+
+    <form action="{% url 'filter' %}" method="get">
+        <div class="left-side my-4">
+            <h3 class="sear-head editContent">Жанры</h3>
+            <ul class="w3layouts-box-list">
+                {% for genre in view.get_genres %}
+                    <li class="editContent">
+                        <input type="checkbox" class="checked" name="genre" value="{{ genre.id }}">
+                        <span class="span editContent">{{ genre.name }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="left-side">
+            <h3 class="sear-head editContent">Год</h3>
+            <ul class="w3layouts-box-list">
+                {% for movie in view.get_years %}
+                    <li class="editContent">
+                        <input type="checkbox" class="checked" name="year" value="{{ movie.year }}">
+                        <span class="span editContent">{{ movie.year }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <button type="submit" class="search_btn">Найти</button>
+    </form>
+</div>
+
+
+<div class="container">
+{% for movie in object_list %}
+  <div class="item">
+   <div class="col-lg-8">
+    <div >
+        <a href="{{ movie.get_absolute_url }}">
+            {{ movie.title }}
+        </a>
+    </div>
+    <div><img src="{{ movie.poster.url }}"></div>
+    <div > {{ movie.description }} </div>
+   </div>
+  </div>
+{% empty %} <p>Список пуст</p>
+
+{% endfor %}
+</div>
+{% endblock %}
