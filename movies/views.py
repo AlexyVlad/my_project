@@ -72,11 +72,14 @@ class MovieDetailView(DetailView):
         context["star_form"] = RatingForm()
 
         # Получить оценку пользователя для данного фильма (если она существует)
-        user_rating = None
-        if self.request.user.is_authenticated:
-            user_rating = Rating.objects.filter(movie=self.object, ip=self.request.META['REMOTE_ADDR']).first()
 
-        context['user_rating'] = user_rating
+        user_rating = Rating.objects.filter(movie=self.object, ip=self.request.META['REMOTE_ADDR']).first()
+        if user_rating:
+            star_value = user_rating.star.value
+        else:
+            star_value = None
+
+        context['user_rating'] = star_value
         context['average_rating'] = Rating.objects.filter(movie=self.object).aggregate(Avg('star__value'))['star__value__avg']
 
         return context
@@ -91,9 +94,9 @@ class ActorDetailView(DetailView):
 class AddStarRating(View):
 #добавление рейтинга
     def get_client_ip(self, request):
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
+        ip_try = request.META.get('HTTP_X_FORWARDED_FOR')
+        if ip_try:
+            ip = ip_try.split(',')[0]
         else:
             ip = request.META.get('REMOTE_ADDR')
         return ip

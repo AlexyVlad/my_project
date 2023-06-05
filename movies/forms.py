@@ -1,7 +1,4 @@
-from django.forms import forms
-
 from movies.models import Reviews, Rating, RatingStar
-from django.forms import ModelForm
 
 from django import forms
 
