@@ -1,12 +1,12 @@
 from django.db.models import Q
 from django.views.generic import ListView, DetailView, TemplateView, View
-from django.shortcuts import render
-from movies.models import Movie, Actor, Genre
+from django.http import JsonResponse, HttpResponse
+from movies.models import Movie, Actor, Genre, Rating
 from django.shortcuts import render, redirect
 
-from movies.forms import ReviewForm
+from movies.forms import ReviewForm, RatingForm
 
-from django.db.models import Max, F
+from django.db.models import Max, F, Avg
 
 
 class GenreYear:
@@ -15,7 +15,7 @@ class GenreYear:
         return Genre.objects.all()
 
     def get_years(self):
-        return Movie.objects.filter(draft=False).values("year")
+        return Movie.objects.filter(draft=False).values("year").order_by("year")
 
 
 class NewMoviesListView(ListView):
@@ -48,7 +48,7 @@ class FilterMoviesView(GenreYear, ListView, ):
         return queryset
 
 
-class Search(ListView):
+class Search(ListView, GenreYear):
 #Поиск по фильму
     #paginate_by = 3
     template_name = "movie_list.html"
@@ -67,11 +67,48 @@ class MovieDetailView(DetailView):
     template_name = "movie_detail.html"
     slug_field = "url"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["star_form"] = RatingForm()
+
+        # Получить оценку пользователя для данного фильма (если она существует)
+        user_rating = None
+        if self.request.user.is_authenticated:
+            user_rating = Rating.objects.filter(movie=self.object, ip=self.request.META['REMOTE_ADDR']).first()
+
+        context['user_rating'] = user_rating
+        context['average_rating'] = Rating.objects.filter(movie=self.object).aggregate(Avg('star__value'))['star__value__avg']
+
+        return context
+
 
 class ActorDetailView(DetailView):
     model = Actor
     template_name = 'actor_detail.html'
     slug_field = "name"
+
+
+class AddStarRating(View):
+#добавление рейтинга
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+    def post(self, request):
+        form = RatingForm(request.POST)
+        if form.is_valid():
+            Rating.objects.update_or_create(
+                ip=self.get_client_ip(request),
+                movie_id=int(request.POST.get("movie")),
+                defaults={'star_id': int(request.POST.get("star"))}
+            )
+            return HttpResponse(status=201)
+        else:
+            return HttpResponse(status=400)
 
 
 class AddReview(View):
