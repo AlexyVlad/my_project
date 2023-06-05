@@ -1,8 +1,25 @@
 {% extends 'base.html' %}
 
+{% block title %} Новинки {% endblock %}
+
 {% block content %}
 
-    <h1>Главная траница</h1>
-    <div ><img src=""></div>
+<div class="container">
+{% for movie in view.get_new_movie_list %}
+  <div class="new_item">
+   <div class="col-lg-8">
+    <div>
+        <a href="{{ movie.get_absolute_url }}">
+            {{ movie.title }}
+        </a>
+    </div>
+    <div><img src="{{ movie.poster.url }}"></div>
+    <div > {{ movie.description }} </div>
+   </div>
+  </div>
+{% empty %} <p>Список пуст</p>
+
+{% endfor %}
+</div>
 
 {% endblock %}

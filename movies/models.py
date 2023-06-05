@@ -1,6 +1,6 @@
-from audioop import reverse
 from datetime import date
 from django.db import models
+from django.urls import reverse
 
 
 class Category(models.Model):
@@ -74,13 +74,15 @@ class Movie(models.Model):
     url = models.SlugField(max_length=130, unique=True)
     draft = models.BooleanField("Черновик", default=False)
 
+    #для нормального отображения отзывов
+    def get_review(self):
+        return self.reviews_set.filter(parent__isnull=True)
+
     def __str__(self):
         return self.title
 
-
-
     def get_absolute_url(self):
-        return reverse("movie_detail", kwargs={'pk': self.pk})
+        return reverse("movie_detail", kwargs={"slug": self.url})
 
     def get_review(self):
         return self.reviews_set.filter(parent__isnull=True)
