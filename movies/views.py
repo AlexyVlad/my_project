@@ -3,9 +3,8 @@ from django.views.generic import ListView, DetailView, TemplateView, View
 from django.http import JsonResponse, HttpResponse
 from movies.models import Movie, Actor, Genre, Rating
 from django.shortcuts import render, redirect
-
+from django.urls import reverse
 from movies.forms import ReviewForm, RatingForm
-
 from django.db.models import Max, F, Avg
 
 
@@ -50,7 +49,6 @@ class FilterMoviesView(GenreYear, ListView, ):
 
 class Search(ListView, GenreYear):
 #Поиск по фильму
-    #paginate_by = 3
     template_name = "movie_list.html"
 
     def get_queryset(self):
@@ -71,7 +69,7 @@ class MovieDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context["star_form"] = RatingForm()
 
-        # Получить оценку пользователя для данного фильма (если она существует)
+        #оценка пользователя для данного фильма (если она существует)
 
         user_rating = Rating.objects.filter(movie=self.object, ip=self.request.META['REMOTE_ADDR']).first()
         if user_rating:
@@ -80,7 +78,8 @@ class MovieDetailView(DetailView):
             star_value = None
 
         context['user_rating'] = star_value
-        context['average_rating'] = Rating.objects.filter(movie=self.object).aggregate(Avg('star__value'))['star__value__avg']
+        context['average_rating'] = Rating.objects.filter(movie=self.object).\
+            aggregate(Avg('star__value'))['star__value__avg']
 
         return context
 
