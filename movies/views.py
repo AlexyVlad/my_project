@@ -14,7 +14,7 @@ class GenreYear:
         return Genre.objects.all()
 
     def get_years(self):
-        return Movie.objects.filter(draft=False).values("year").order_by("year")
+        return Movie.objects.filter(draft=False).values("year").order_by("year").distinct()
 
 
 class NewMoviesListView(ListView):
